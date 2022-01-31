@@ -1,0 +1,14 @@
+[
+  {
+    "id": "karinl@acmecorp.com",
+    "roles": ["user"]
+  },
+  {
+    "id": "dianet@acmecorp.com",
+    "roles": ["editor"]
+  },
+  {
+    "id": "krisj@acmecorp.com",
+    "roles": ["user", "admin"]
+  }
+]
