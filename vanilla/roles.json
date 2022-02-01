@@ -1,13 +1,13 @@
 {
   "user": {
-    "view": ["asset1", "asset2"]
+    "read": ["asset1", "asset2"]
   },
   "editor": {
-    "view": ["asset1", "asset2"],
+    "read": ["asset1", "asset2"],
     "edit": ["asset1", "asset2"]
   },
   "admin": {
-    "view": ["asset1", "asset2", "asset3"],
+    "read": ["asset1", "asset2", "asset3"],
     "edit": ["asset1", "asset2"],
     "delete": ["asset1", "asset2"]
   }
