@@ -7,25 +7,24 @@ import (
 
 	"github.com/aserto-demo/go-rbac/pkg/authz"
 	"github.com/aserto-demo/go-rbac/pkg/users"
-	"github.com/casbin/casbin"
 	"github.com/gorilla/mux"
 )
 
 func main() {
-	enforcer, err := casbin.NewEnforcerSafe("./rbac_model.conf", "./rbac_policy.csv")
-	if err != nil {
-		log.Fatal("Failed to create enforcer:", err)
-	}
-
 	users, err := users.Load()
 	if err != nil {
 		log.Fatal("Failed to load users:", err)
 	}
 
+	roles, err := LoadRoles()
+	if err != nil {
+		log.Fatal("Failed to load roles:", err)
+	}
+
 	router := mux.NewRouter()
 	router.HandleFunc("/api/{asset}", handleRequest).Methods("GET", "POST", "DELETE")
 	router.Use(
-		authz.Middleware(&authorizer{users: users, enforcer: enforcer}),
+		authz.Middleware(&authorizer{users: users, roles: roles}),
 	)
 
 	fmt.Println("Staring server on 0.0.0.0:8080")
@@ -38,8 +37,8 @@ func main() {
 }
 
 type authorizer struct {
-	users    users.Users
-	enforcer *casbin.Enforcer
+	users users.Users
+	roles Roles
 }
 
 func (a *authorizer) HasPermission(userID, action, asset string) bool {
@@ -50,9 +49,18 @@ func (a *authorizer) HasPermission(userID, action, asset string) bool {
 		return false
 	}
 
-	for _, role := range user.Roles {
-		if a.enforcer.Enforce(role, asset, action) {
-			return true
+	for _, roleName := range user.Roles {
+		if role, ok := a.roles[roleName]; ok {
+			resources, ok := role[action]
+			if ok {
+				for _, resource := range resources {
+					if resource == asset {
+						return true
+					}
+				}
+			}
+		} else {
+			log.Printf("User '%s' has unknown role '%s'", userID, roleName)
 		}
 	}
 
@@ -62,4 +70,17 @@ func (a *authorizer) HasPermission(userID, action, asset string) bool {
 func handleRequest(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
 	w.Write([]byte("Got permission"))
+}
+
+func actionFromMethod(httpMethod string) string {
+	switch httpMethod {
+	case "GET":
+		return "view"
+	case "POST":
+		return "edit"
+	case "DELETE":
+		return "delete"
+	default:
+		return ""
+	}
 }
