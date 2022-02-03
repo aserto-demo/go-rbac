@@ -33,11 +33,11 @@ func Middleware(a Authorizer) func(http.Handler) http.Handler {
 func actionFromMethod(httpMethod string) string {
 	switch httpMethod {
 	case "GET":
-		return "read"
+		return "gather"
 	case "POST":
-		return "edit"
+		return "consume"
 	case "DELETE":
-		return "delete"
+		return "destroy"
 	default:
 		return ""
 	}

@@ -18,9 +18,9 @@ Staring server on 0.0.0.0:8080
 You can now send requests using `curl`. For example:
 
 ```sh
-$ curl -X POST -f -u dianet@acmecorp.com:asdfasdf http://localhost:8080/api/asset2
+$ curl -X POST -f -u beth@the-smiths.com:x http://localhost:8080/api/megaSeeds
 curl: (22) The requested URL returned error: 403
 
-$ curl -X GET -f -u dianet@acmecorp.com:asdfasdf http://localhost:8080/api/asset2
-Got permission⏎
+$ curl -X GET -f -u beth@the-smiths.com:x http://localhost:8080/api/megaSeeds
+"Got permission"⏎
 ```
