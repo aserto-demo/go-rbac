@@ -9,27 +9,6 @@ import (
 	"github.com/casbin/casbin"
 	"github.com/gorilla/mux"
 )
-
-func main() {
-	enforcer, err := casbin.NewEnforcerSafe("./rbac_model.conf", "./rbac_policy.csv")
-	if err != nil {
-		log.Fatal("Failed to create enforcer:", err)
-	}
-
-	users, err := users.Load()
-	if err != nil {
-		log.Fatal("Failed to load users:", err)
-	}
-
-	router := mux.NewRouter()
-	router.HandleFunc("/api/{asset}", server.Handler).Methods("GET", "POST", "DELETE")
-	router.Use(
-		authz.Middleware(&authorizer{users: users, enforcer: enforcer}),
-	)
-
-	server.Start(router)
-}
-
 type authorizer struct {
 	users    users.Users
 	enforcer *casbin.Enforcer
@@ -50,4 +29,24 @@ func (a *authorizer) HasPermission(userID, action, asset string) bool {
 	}
 
 	return false
+}
+
+func main() {
+	enforcer, err := casbin.NewEnforcerSafe("./rbac_model.conf", "./rbac_policy.csv")
+	if err != nil {
+		log.Fatal("Failed to create enforcer:", err)
+	}
+
+	users, err := users.Load()
+	if err != nil {
+		log.Fatal("Failed to load users:", err)
+	}
+
+	router := mux.NewRouter()
+	router.HandleFunc("/api/{asset}", server.Handler).Methods("GET", "POST", "DELETE")
+	router.Use(
+		authz.Middleware(&authorizer{users: users, enforcer: enforcer}),
+	)
+
+	server.Start(router)
 }

@@ -22,6 +22,7 @@ require (
 	github.com/lestrrat-go/iter v1.0.1 // indirect
 	github.com/lestrrat-go/jwx v1.2.10 // indirect
 	github.com/lestrrat-go/option v1.0.0 // indirect
+	github.com/mikespook/gorbac v2.1.0+incompatible
 	github.com/pkg/errors v0.9.1 // indirect
 	golang.org/x/crypto v0.0.0-20201217014255-9d1352758620 // indirect
 	golang.org/x/net v0.0.0-20211216030914-fe4d6282115f // indirect

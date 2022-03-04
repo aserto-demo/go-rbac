@@ -9,26 +9,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func main() {
-	users, err := users.Load()
-	if err != nil {
-		log.Fatal("Failed to load users:", err)
-	}
-
-	roles, err := LoadRoles()
-	if err != nil {
-		log.Fatal("Failed to load roles:", err)
-	}
-
-	router := mux.NewRouter()
-	router.HandleFunc("/api/{asset}", server.Handler).Methods("GET", "POST", "DELETE")
-	router.Use(
-		authz.Middleware(&authorizer{users: users, roles: roles}),
-	)
-
-	server.Start(router)
-}
-
 type authorizer struct {
 	users users.Users
 	roles Roles
@@ -58,4 +38,24 @@ func (a *authorizer) HasPermission(userID, action, asset string) bool {
 	}
 
 	return false
+}
+
+func main() {
+	users, err := users.Load()
+	if err != nil {
+		log.Fatal("Failed to load users:", err)
+	}
+
+	roles, err := LoadRoles()
+	if err != nil {
+		log.Fatal("Failed to load roles:", err)
+	}
+
+	router := mux.NewRouter()
+	router.HandleFunc("/api/{asset}", server.Handler).Methods("GET", "POST", "DELETE")
+	router.Use(
+		authz.Middleware(&authorizer{users: users, roles: roles}),
+	)
+
+	server.Start(router)
 }
