@@ -1,8 +1,6 @@
 package users
 
 import (
-	"encoding/json"
-
 	"github.com/aserto-demo/go-rbac/pkg/file"
 )
 
@@ -14,13 +12,9 @@ type User struct {
 type Users map[string]User
 
 func Load() (Users, error) {
-	jsonBytes, err := file.ReadBytes("../users.json")
-	if err != nil {
-		return nil, err
-	}
-
 	var userList []User
-	if err := json.Unmarshal(jsonBytes, &userList); err != nil {
+
+	if err := file.LoadJson("../users.json", &userList); err != nil {
 		return nil, err
 	}
 

@@ -1,49 +1,55 @@
 package main
 
 import (
-	"encoding/json"
 	"log"
-	"os"
 
 	"github.com/aserto-demo/go-rbac/pkg/authz"
+	"github.com/aserto-demo/go-rbac/pkg/file"
 	"github.com/aserto-demo/go-rbac/pkg/server"
 	"github.com/aserto-demo/go-rbac/pkg/users"
 	"github.com/gorilla/mux"
 	"github.com/mikespook/gorbac"
 )
 
-func LoadJson(filename string, v interface{}) error {
-	f, err := os.Open(filename)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-	return json.NewDecoder(f).Decode(v)
+type authorizer struct {
+	users    users.Users
+	rbac *gorbac.RBAC
+	permissions gorbac.Permissions
 }
 
-func SaveJson(filename string, v interface{}) error {
-	f, err := os.OpenFile(filename, os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		return err
+func (a *authorizer) HasPermission(userID, action, asset string) bool {
+	user, ok := a.users[userID]
+	if !ok {
+		// Unknown userID
+		log.Print("Unknown user:", userID)
+		return false
 	}
-	defer f.Close()
-	return json.NewEncoder(f).Encode(v)
+
+	for _, role := range user.Roles {
+		permission := action + "-" + asset
+		if a.rbac.IsGranted(role, a.permissions[permission], nil) {
+			return true
+		}
+	}
+
+	return false
 }
 
 func main() {
 	// map[RoleId]PermissionIds
-	var jsonRoles map[string][]string
+	var roles map[string][]string
 
 	// Load roles information
-	if err := LoadJson("roles.json", &jsonRoles); err != nil {
+	if err := file.LoadJson("roles.json", &roles); err != nil {
 		log.Fatal(err)
 	}
 
 	rbac := gorbac.New()
 	permissions := make(gorbac.Permissions)
 
+
 	// Build roles and add them to goRBAC instance
-	for rid, pids := range jsonRoles {
+	for rid, pids := range roles {
 		role := gorbac.NewStdRole(rid)
 		for _, pid := range pids {
 			_, ok := permissions[pid]
@@ -67,29 +73,4 @@ func main() {
 	)
 
 	server.Start(router)
-
-}
-type authorizer struct {
-	users    users.Users
-	rbac *gorbac.RBAC
-	permissions gorbac.Permissions
-}
-
-
-func (a *authorizer) HasPermission(userID, action, asset string) bool {
-	user, ok := a.users[userID]
-	if !ok {
-		// Unknown userID
-		log.Print("Unknown user:", userID)
-		return false
-	}
-
-	for _, role := range user.Roles {
-		permission := action + "-" + asset
-		if a.rbac.IsGranted(role, a.permissions[permission], nil) {
-			return true
-		}
-	}
-
-	return false
 }

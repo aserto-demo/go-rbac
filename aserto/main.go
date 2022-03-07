@@ -14,27 +14,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func main() {
-	authorizerAddr := os.Getenv("AUTHORIZER_ADDRESS")
-	if authorizerAddr == "" {
-		authorizerAddr = "authorizer.prod.aserto.com:8443"
-	}
-	apiKey := os.Getenv("AUTHORIZER_API_KEY")
-	policyID := os.Getenv("POLICY_ID")
-	tenantID := os.Getenv("TENANT_ID")
-	authorizer, err := NewAuthorizer(authorizerAddr, tenantID, apiKey, policyID)
-	if err != nil {
-		log.Fatal("Failed to create authorizer:", err)
-	}
-
-	router := mux.NewRouter()
-	router.HandleFunc("/api/{asset}", server.Handler).Methods("GET", "POST", "DELETE")
-	router.Use(authorizer.Handler)
-
-	server.Start(router)
-}
-
-func NewAuthorizer(addr, tenantID, apiKey, policyID string) (*std.Middleware, error) {
+func AsertoAuthorizer(addr, tenantID, apiKey, policyID string) (*std.Middleware, error) {
 	ctx := context.Background()
 	authClient, err := grpc.New(
 		ctx,
@@ -60,4 +40,24 @@ func NewAuthorizer(addr, tenantID, apiKey, policyID string) (*std.Middleware, er
 	})
 	mw.WithPolicyFromURL("gorbac")
 	return mw, nil
+}
+
+func main() {
+	authorizerAddr := os.Getenv("AUTHORIZER_ADDRESS")
+	if authorizerAddr == "" {
+		authorizerAddr = "authorizer.prod.aserto.com:8443"
+	}
+	apiKey := os.Getenv("AUTHORIZER_API_KEY")
+	policyID := os.Getenv("POLICY_ID")
+	tenantID := os.Getenv("TENANT_ID")
+	authorizer, err := AsertoAuthorizer(authorizerAddr, tenantID, apiKey, policyID)
+	if err != nil {
+		log.Fatal("Failed to create authorizer:", err)
+	}
+
+	router := mux.NewRouter()
+	router.HandleFunc("/api/{asset}", server.Handler).Methods("GET", "POST", "DELETE")
+	router.Use(authorizer.Handler)
+
+	server.Start(router)
 }
