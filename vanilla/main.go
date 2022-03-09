@@ -51,11 +51,11 @@ func main() {
 		log.Fatal("Failed to load roles:", err)
 	}
 
+	middleware := authz.Middleware(&authorizer{users: users, roles: roles})
+
 	router := mux.NewRouter()
 	router.HandleFunc("/api/{asset}", server.Handler).Methods("GET", "POST", "DELETE")
-	router.Use(
-		authz.Middleware(&authorizer{users: users, roles: roles}),
-	)
+	router.Use(middleware)
 
 	server.Start(router)
 }

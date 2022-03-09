@@ -12,6 +12,7 @@ import (
 	"github.com/aserto-dev/aserto-go/middleware"
 	"github.com/aserto-dev/aserto-go/middleware/http/std"
 	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
 )
 
 func AsertoAuthorizer(addr, tenantID, apiKey, policyID string) (*std.Middleware, error) {
@@ -43,6 +44,11 @@ func AsertoAuthorizer(addr, tenantID, apiKey, policyID string) (*std.Middleware,
 }
 
 func main() {
+	err := godotenv.Load()
+  if err != nil {
+    log.Fatal("Error loading .env file")
+  }
+
 	authorizerAddr := os.Getenv("AUTHORIZER_ADDRESS")
 	if authorizerAddr == "" {
 		authorizerAddr = "authorizer.prod.aserto.com:8443"
@@ -50,10 +56,13 @@ func main() {
 	apiKey := os.Getenv("AUTHORIZER_API_KEY")
 	policyID := os.Getenv("POLICY_ID")
 	tenantID := os.Getenv("TENANT_ID")
+
 	authorizer, err := AsertoAuthorizer(authorizerAddr, tenantID, apiKey, policyID)
 	if err != nil {
 		log.Fatal("Failed to create authorizer:", err)
 	}
+
+	log.Print(os.Getenv("AUTHORIZER_API_KEY"))
 
 	router := mux.NewRouter()
 	router.HandleFunc("/api/{asset}", server.Handler).Methods("GET", "POST", "DELETE")

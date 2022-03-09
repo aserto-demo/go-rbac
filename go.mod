@@ -8,6 +8,8 @@ require (
 	github.com/gorilla/mux v1.8.0
 )
 
+require github.com/joho/godotenv v1.4.0 // indirect
+
 require (
 	github.com/Knetic/govaluate v3.0.1-0.20171022003610-9aa49832a739+incompatible // indirect
 	github.com/aserto-dev/go-grpc v0.8.0 // indirect
