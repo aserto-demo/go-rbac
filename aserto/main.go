@@ -2,61 +2,26 @@ package main
 
 import (
 	"context"
-	"fmt"
-	"io/fs"
 	"log"
 	"net/http"
 	"os"
-
-	"github.com/gorilla/mux"
-	"github.com/joho/godotenv"
-	"github.com/pkg/errors"
 
 	"github.com/aserto-demo/go-rbac/pkg/server"
 	"github.com/aserto-dev/aserto-go/authorizer/grpc"
 	"github.com/aserto-dev/aserto-go/client"
 	"github.com/aserto-dev/aserto-go/middleware"
 	"github.com/aserto-dev/aserto-go/middleware/http/std"
+	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
 )
 
-var ErrMissingVar = errors.New("missing environment variable(s)")
-
-type asertoEnv struct {
-	addr     string
-	apiKey   string
-	policyID string
-	tenantID string
-}
-
-func (env *asertoEnv) Validate() error {
-	missing := []string{}
-	if env.addr == "" {
-		missing = append(missing, "AUTHORIZER_ADDRESS")
-	}
-	if env.apiKey == "" {
-		missing = append(missing, "AUTHORIZER_API_KEY")
-	}
-	if env.policyID == "" {
-		missing = append(missing, "POLICY_ID")
-	}
-	if env.tenantID == "" {
-		missing = append(missing, "TENANT_ID")
-	}
-
-	if len(missing) > 0 {
-		return fmt.Errorf("%w: %s", ErrMissingVar, missing)
-	}
-
-	return nil
-}
-
-func AsertoAuthorizer(env *asertoEnv) (*std.Middleware, error) {
+func AsertoAuthorizer(addr, tenantID, apiKey, policyID string) (*std.Middleware, error) {
 	ctx := context.Background()
 	authClient, err := grpc.New(
 		ctx,
-		client.WithAddr(env.addr),
-		client.WithTenantID(env.tenantID),
-		client.WithAPIKeyAuth(env.apiKey),
+		client.WithAddr(addr),
+		client.WithTenantID(tenantID),
+		client.WithAPIKeyAuth(apiKey),
 	)
 	if err != nil {
 		return nil, err
@@ -65,7 +30,7 @@ func AsertoAuthorizer(env *asertoEnv) (*std.Middleware, error) {
 	mw := std.New(
 		authClient,
 		middleware.Policy{
-			ID:       env.policyID,
+			ID:       policyID,
 			Decision: "allowed",
 		},
 	)
@@ -78,37 +43,21 @@ func AsertoAuthorizer(env *asertoEnv) (*std.Middleware, error) {
 	return mw, nil
 }
 
-func loadEnv() (*asertoEnv, error) {
-	if err := godotenv.Load(".env"); err != nil && !errors.Is(err, fs.ErrNotExist) {
-		return nil, fmt.Errorf("%w: failed to load .env file.")
-	}
+func main() {
+	err := godotenv.Load()
+  if err != nil {
+    log.Fatal("Error loading .env file")
+  }
 
 	authorizerAddr := os.Getenv("AUTHORIZER_ADDRESS")
 	if authorizerAddr == "" {
 		authorizerAddr = "authorizer.prod.aserto.com:8443"
 	}
+	apiKey := os.Getenv("AUTHORIZER_API_KEY")
+	policyID := os.Getenv("POLICY_ID")
+	tenantID := os.Getenv("TENANT_ID")
 
-	env := &asertoEnv{
-		addr:     authorizerAddr,
-		apiKey:   os.Getenv("AUTHORIZER_API_KEY"),
-		policyID: os.Getenv("POLICY_ID"),
-		tenantID: os.Getenv("TENANT_ID"),
-	}
-
-	if err := env.Validate(); err != nil {
-		return nil, err
-	}
-
-	return env, nil
-}
-
-func main() {
-	env, err := loadEnv()
-	if err != nil {
-		log.Fatalf("Environment error: %s", err)
-	}
-
-	authorizer, err := AsertoAuthorizer(env)
+	authorizer, err := AsertoAuthorizer(authorizerAddr, tenantID, apiKey, policyID)
 	if err != nil {
 		log.Fatal("Failed to create authorizer:", err)
 	}
