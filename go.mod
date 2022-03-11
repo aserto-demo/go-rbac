@@ -6,7 +6,6 @@ require (
 	github.com/aserto-dev/aserto-go v0.8.1-0.20220203230328-1df6c00e5360
 	github.com/casbin/casbin v1.9.1
 	github.com/gorilla/mux v1.8.0
-	github.com/joho/godotenv v1.4.0
 )
 
 require github.com/joho/godotenv v1.4.0 // indirect
