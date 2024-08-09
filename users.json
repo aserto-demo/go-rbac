@@ -1,14 +1,14 @@
 [
   {
-    "id": "beth@the-smiths.com",
-    "roles": ["clone"]
+    "id": "summer@the-smiths.com",
+    "roles": ["space-cruiser-reader"]
   },
   {
     "id": "morty@the-citadel.com",
-    "roles": ["sidekick"]
+    "roles": ["mega-seed-owner", "portal-gun-owner", "space-cruiser-writer", "time-crystal-reader"]
   },
   {
     "id": "rick@the-citadel.com",
-    "roles": ["evilGenius", "squanch"]
+    "roles": ["mega-seed-reader", "portal-gun-writer", "space-cruiser-owner", "time-crystal-writer"]
   }
 ]

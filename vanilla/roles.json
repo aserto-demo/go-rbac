@@ -1,14 +1,37 @@
 {
-  "clone": {
-    "gather": ["megaSeeds", "timeCrystals"]
+  "mega-seed-owner": {
+    "can_read": ["mega-seed"],
+    "can_write": ["mega-seed"],
+    "can_delete": ["mega-seed"]
   },
-  "sidekick": {
-    "gather": ["megaSeeds", "timeCrystals"],
-    "consume": ["megaSeeds", "timeCrystals"]
+  "mega-seed-reader": {
+    "can_read": ["mega-seed"],
+    "can_write": [],
+    "can_delete": []
   },
-  "evilGenius": {
-    "gather": ["megaSeeds", "timeCrystals"],
-    "consume": ["megaSeeds", "timeCrystals"],
-    "destroy": ["megaSeeds", "timeCrystals"]
+  "portal-gun-owner": {
+    "can_read": ["portal-gun"],
+    "can_write": ["portal-gun"],
+    "can_delete": ["portal-gun"]
+  },
+  "portal-gun-writer": {
+    "can_read": ["portal-gun"],
+    "can_write": ["portal-gun"],
+    "can_delete": []
+  },
+  "space-cruiser-owner": {
+    "can_read": ["space-cruiser"],
+    "can_write": ["space-cruiser"],
+    "can_delete": ["space-cruiser"]
+  },
+  "space-cruiser-writer": {
+    "can_read": ["space-cruiser"],
+    "can_write": ["space-cruiser"],
+    "can_delete": []
+  },
+  "space-cruiser-reader": {
+    "can_read": ["space-cruiser"],
+    "can_write": [],
+    "can_delete": []
   }
 }

@@ -2,6 +2,7 @@ package users
 
 import (
 	"github.com/aserto-demo/go-rbac/pkg/file"
+	"github.com/samber/lo"
 )
 
 type User struct {
@@ -18,10 +19,9 @@ func Load() (Users, error) {
 		return nil, err
 	}
 
-	users := Users{}
-	for _, user := range userList {
-		users[user.ID] = user
-	}
+	users := lo.Associate(userList, func(u User) (string, User) {
+		return u.ID, u
+	})
 
 	return users, nil
 }

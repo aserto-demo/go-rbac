@@ -8,7 +8,7 @@ import (
 
 func Handler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
-	w.Write([]byte(`"Got permission"`))
+	w.Write([]byte(`"Access granted"`))
 }
 
 func Start(handler http.Handler) {
