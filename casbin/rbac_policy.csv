@@ -11,5 +11,5 @@ g, mega-seed-owner, mega-seed-writer
 g, mega-seed-writer, mega-seed-reader
 g, portal-gun-owner, portal-gun-writer
 g, portal-gun-writer, portal-gun-reader
-g, space-cruiser--owner, space-cruiser--writer
-g, space-cruiser--writer, space-cruiser--reader
+g, space-cruiser-owner, space-cruiser-writer
+g, space-cruiser-writer, space-cruiser-reader

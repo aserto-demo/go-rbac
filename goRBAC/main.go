@@ -66,10 +66,11 @@ func main() {
 	}
 
 	router := mux.NewRouter()
-	router.HandleFunc("/api/{resource}", server.Handler).Methods("GET", "PUT", "DELETE")
 	router.Use(
 		authz.Middleware(&authorizer{users: users, rbac: rbac, permissions: permissions}),
 	)
+
+	router.HandleFunc("/api/{resource}", server.Handler).Methods("GET", "PUT", "DELETE")
 
 	server.Start(router)
 }

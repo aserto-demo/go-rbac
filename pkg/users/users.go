@@ -19,7 +19,7 @@ func Load() (Users, error) {
 		return nil, err
 	}
 
-	users := lo.Associate(userList, func(u User) (string, User) {
+	users := lo.SliceToMap(userList, func(u User) (string, User) {
 		return u.ID, u
 	})
 

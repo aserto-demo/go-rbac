@@ -26,7 +26,7 @@ func AsertoAuthorizer(addr string) (*gorillaz.Middleware, error) {
 			Decision: "allowed",
 			Root:     "rebac",
 		},
-	).WithPolicyFromURL("gorbac")
+	)
 	mw.Identity.Mapper(func(r *http.Request, identity middleware.Identity) {
 		if username, _, ok := r.BasicAuth(); ok {
 			identity.Subject().ID(username)
@@ -49,16 +49,13 @@ func main() {
 	log.Print(os.Getenv("AUTHORIZER_API_KEY"))
 
 	router := mux.NewRouter()
-	router.HandleFunc("/api/{resource}", server.Handler).Methods("GET", "PUT", "DELETE")
 	router.Use(authorizer.Check(
 		gorillaz.WithObjectType("resource"),
-		gorillaz.WithObjectIDMapper(func(r *http.Request) string {
-			return mux.Vars(r)["resource"]
-		}),
-		gorillaz.WithRelationMapper(func(r *http.Request) string {
-			return authz.ActionFromMethod(r.Method)
-		}),
+		gorillaz.WithObjectIDFromVar("resource"),
+		gorillaz.WithRelationMapper(authz.ActionFromMethod),
 	).Handler)
+
+	router.HandleFunc("/api/{resource}", server.Handler).Methods("GET", "PUT", "DELETE")
 
 	server.Start(router)
 }

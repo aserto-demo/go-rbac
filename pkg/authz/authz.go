@@ -18,9 +18,9 @@ func Middleware(a Authorizer) func(http.Handler) http.Handler {
 			// This is where the password would normally be verified
 
 			resource := mux.Vars(r)["resource"]
-			action := ActionFromMethod(r.Method)
+			action := ActionFromMethod(r)
 			if !ok || !a.HasPermission(username, action, resource) {
-				log.Printf("User '%s' is not allowed to '%s' resource '%s'", username, action, resource)
+				log.Printf("User '%s' is denied  '%s' on resource '%s'", username, action, resource)
 				w.WriteHeader(http.StatusForbidden)
 				return
 			}
@@ -30,8 +30,8 @@ func Middleware(a Authorizer) func(http.Handler) http.Handler {
 	}
 }
 
-func ActionFromMethod(httpMethod string) string {
-	switch httpMethod {
+func ActionFromMethod(r *http.Request) string {
+	switch r.Method {
 	case "GET":
 		return "can_read"
 	case "PUT":

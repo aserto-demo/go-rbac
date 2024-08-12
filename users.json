@@ -5,10 +5,18 @@
   },
   {
     "id": "morty@the-citadel.com",
-    "roles": ["mega-seed-owner", "portal-gun-owner", "space-cruiser-writer", "time-crystal-reader"]
+    "roles": [
+      "mega-seed-owner",
+      "portal-gun-owner",
+      "space-cruiser-writer"
+    ]
   },
   {
     "id": "rick@the-citadel.com",
-    "roles": ["mega-seed-reader", "portal-gun-writer", "space-cruiser-owner", "time-crystal-writer"]
+    "roles": [
+      "mega-seed-reader",
+      "portal-gun-writer",
+      "space-cruiser-owner"
+    ]
   }
 ]
