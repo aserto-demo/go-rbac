@@ -4,10 +4,12 @@
     "can_write": ["mega-seed"],
     "can_delete": ["mega-seed"]
   },
-  "mega-seed-reader": {
+  "mega-seed-writer": {
     "can_read": ["mega-seed"],
-    "can_write": [],
-    "can_delete": []
+    "can_write": ["mega-seed"]
+  },
+  "mega-seed-reader": {
+    "can_read": ["mega-seed"]
   },
   "portal-gun-owner": {
     "can_read": ["portal-gun"],
@@ -16,8 +18,10 @@
   },
   "portal-gun-writer": {
     "can_read": ["portal-gun"],
-    "can_write": ["portal-gun"],
-    "can_delete": []
+    "can_write": ["portal-gun"]
+  },
+  "portal-gun-reader": {
+    "can_read": ["portal-gun"]
   },
   "space-cruiser-owner": {
     "can_read": ["space-cruiser"],
@@ -26,12 +30,9 @@
   },
   "space-cruiser-writer": {
     "can_read": ["space-cruiser"],
-    "can_write": ["space-cruiser"],
-    "can_delete": []
+    "can_write": ["space-cruiser"]
   },
   "space-cruiser-reader": {
-    "can_read": ["space-cruiser"],
-    "can_write": [],
-    "can_delete": []
+    "can_read": ["space-cruiser"]
   }
 }

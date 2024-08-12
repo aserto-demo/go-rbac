@@ -1,8 +1,15 @@
-p, clone, megaSeeds, gather
-p, clone, timeCrystals, gather
-p, sidekick, megaSeeds, consume
-p, sidekick, timeCrystals, consume
-p, evilGenius, megaSeeds, destroy
-p, evilGenius, timeCrystals, destroy
-g, sidekick, clone
-g, evilGenius, sidekick
+p, mega-seed-owner, mega-seed, can_delete
+p, mega-seed-writer, mega-seed, can_write
+p, mega-seed-reader, mega-seed, can_read
+p, portal-gun-owner, portal-gun, can_delete
+p, portal-gun-writer, portal-gun, can_write
+p, portal-gun-reader, portal-gun, can_read
+p, space-cruiser-owner, space-cruiser, can_delete
+p, space-cruiser-writer, space-cruiser, can_write
+p, space-cruiser-reader, space-cruiser, can_read
+g, mega-seed-owner, mega-seed-writer
+g, mega-seed-writer, mega-seed-reader
+g, portal-gun-owner, portal-gun-writer
+g, portal-gun-writer, portal-gun-reader
+g, space-cruiser--owner, space-cruiser--writer
+g, space-cruiser--writer, space-cruiser--reader

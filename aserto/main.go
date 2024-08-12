@@ -5,21 +5,17 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/aserto-demo/go-rbac/pkg/authz"
 	"github.com/aserto-demo/go-rbac/pkg/server"
 	"github.com/aserto-dev/go-aserto"
 	"github.com/aserto-dev/go-aserto/az"
 	"github.com/aserto-dev/go-aserto/middleware"
 	"github.com/aserto-dev/go-aserto/middleware/gorillaz"
 	"github.com/gorilla/mux"
-	"github.com/joho/godotenv"
 )
 
-func AsertoAuthorizer(addr, tenantID, apiKey, policy string) (*gorillaz.Middleware, error) {
-	azClient, err := az.New(
-		aserto.WithAddr(addr),
-		aserto.WithTenantID(tenantID),
-		aserto.WithAPIKeyAuth(apiKey),
-	)
+func AsertoAuthorizer(addr string) (*gorillaz.Middleware, error) {
+	azClient, err := az.New(aserto.WithAddr(addr))
 	if err != nil {
 		return nil, err
 	}
@@ -27,8 +23,8 @@ func AsertoAuthorizer(addr, tenantID, apiKey, policy string) (*gorillaz.Middlewa
 	mw := gorillaz.New(
 		azClient,
 		&middleware.Policy{
-			Name:     policy,
 			Decision: "allowed",
+			Root:     "rebac",
 		},
 	).WithPolicyFromURL("gorbac")
 	mw.Identity.Mapper(func(r *http.Request, identity middleware.Identity) {
@@ -40,19 +36,12 @@ func AsertoAuthorizer(addr, tenantID, apiKey, policy string) (*gorillaz.Middlewa
 }
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatal("Error loading .env file")
-	}
-
 	authorizerAddr := os.Getenv("AUTHORIZER_ADDRESS")
 	if authorizerAddr == "" {
-		authorizerAddr = "authorizer.prod.aserto.com:8443"
+		authorizerAddr = "localhost:8282" // default topaz authorizer port
 	}
-	apiKey := os.Getenv("AUTHORIZER_API_KEY")
-	policy := os.Getenv("POLICY_NAME")
-	tenantID := os.Getenv("TENANT_ID")
 
-	authorizer, err := AsertoAuthorizer(authorizerAddr, tenantID, apiKey, policy)
+	authorizer, err := AsertoAuthorizer(authorizerAddr)
 	if err != nil {
 		log.Fatal("Failed to create authorizer:", err)
 	}
@@ -60,8 +49,16 @@ func main() {
 	log.Print(os.Getenv("AUTHORIZER_API_KEY"))
 
 	router := mux.NewRouter()
-	router.HandleFunc("/api/{asset}", server.Handler).Methods("GET", "POST", "DELETE")
-	router.Use(authorizer.Handler)
+	router.HandleFunc("/api/{resource}", server.Handler).Methods("GET", "PUT", "DELETE")
+	router.Use(authorizer.Check(
+		gorillaz.WithObjectType("resource"),
+		gorillaz.WithObjectIDMapper(func(r *http.Request) string {
+			return mux.Vars(r)["resource"]
+		}),
+		gorillaz.WithRelationMapper(func(r *http.Request) string {
+			return authz.ActionFromMethod(r.Method)
+		}),
+	).Handler)
 
 	server.Start(router)
 }

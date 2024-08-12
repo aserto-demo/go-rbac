@@ -12,11 +12,11 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func Start(handler http.Handler) {
-	fmt.Println("Staring server on 0.0.0.0:8080")
+	fmt.Println("Staring server on 0.0.0.0:8000")
 
 	srv := http.Server{
 		Handler: handler,
-		Addr:    "0.0.0.0:8080",
+		Addr:    "0.0.0.0:8000",
 	}
 	log.Fatal(srv.ListenAndServe())
 }

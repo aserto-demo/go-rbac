@@ -1,17 +1,11 @@
 {
-  "clone": ["gather-megaSeeds", "gather-timeCrystals"],
-  "sidekick": [
-    "gather-megaSeeds",
-    "gather-timeCrystals",
-    "consume-megaSeeds",
-    "consume-timeCrystals"
-  ],
-  "evilGenius": [
-    "gather-megaSeeds",
-    "gather-timeCrystals",
-    "consume-megaSeeds",
-    "consume-timeCrystals",
-    "destroy-megaSeeds",
-    "destroy-timeCrystals"
-  ]
+  "mega-seed-owner": ["can_read-mega-seed", "can_write-mega-seed", "can_delete-mega-seed"],
+  "mega-seed-writer": ["can_read-mega-seed", "can_write-mega-seed"],
+  "mega-seed-reader": ["can_read-mega-seed"],
+  "portal-gun-owner": ["can_read-portal-gun", "can_write-portal-gun", "can_delete-portal-gun"],
+  "portal-gun-writer": ["can_read-portal-gun", "can_write-portal-gun"],
+  "portal-gun-reader": ["can_read-portal-gun"],
+  "space-cruiser-owner": ["can_read-space-cruiser", "can_write-space-cruiser", "can_delete-space-cruiser"],
+  "space-cruiser-writer": ["can_read-space-cruiser", "can_write-space-cruiser"],
+  "space-cruiser-reader": ["can_read-space-cruiser"]
 }
