@@ -12,12 +12,12 @@ import (
 )
 
 type authorizer struct {
-	users    users.Users
-	rbac *gorbac.RBAC
+	users       users.Users
+	rbac        *gorbac.RBAC
 	permissions gorbac.Permissions
 }
 
-func (a *authorizer) HasPermission(userID, action, asset string) bool {
+func (a *authorizer) HasPermission(userID, action, resource string) bool {
 	user, ok := a.users[userID]
 	if !ok {
 		// Unknown userID
@@ -26,7 +26,7 @@ func (a *authorizer) HasPermission(userID, action, asset string) bool {
 	}
 
 	for _, role := range user.Roles {
-		permission := action + "-" + asset
+		permission := action + "-" + resource
 		if a.rbac.IsGranted(role, a.permissions[permission], nil) {
 			return true
 		}
@@ -47,7 +47,6 @@ func main() {
 	rbac := gorbac.New()
 	permissions := make(gorbac.Permissions)
 
-
 	// Build roles and add them to goRBAC instance
 	for rid, pids := range roles {
 		role := gorbac.NewStdRole(rid)
@@ -67,10 +66,11 @@ func main() {
 	}
 
 	router := mux.NewRouter()
-	router.HandleFunc("/api/{asset}", server.Handler).Methods("GET", "POST", "DELETE")
 	router.Use(
 		authz.Middleware(&authorizer{users: users, rbac: rbac, permissions: permissions}),
 	)
+
+	router.HandleFunc("/api/{resource}", server.Handler).Methods("GET", "PUT", "DELETE")
 
 	server.Start(router)
 }

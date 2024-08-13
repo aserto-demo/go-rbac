@@ -8,7 +8,7 @@ import (
 )
 
 type Authorizer interface {
-	HasPermission(userID, action, asset string) bool
+	HasPermission(userID, action, resource string) bool
 }
 
 func Middleware(a Authorizer) func(http.Handler) http.Handler {
@@ -17,10 +17,10 @@ func Middleware(a Authorizer) func(http.Handler) http.Handler {
 			username, _, ok := r.BasicAuth()
 			// This is where the password would normally be verified
 
-			asset := mux.Vars(r)["asset"]
-			action := actionFromMethod(r.Method)
-			if !ok || !a.HasPermission(username, action, asset) {
-				log.Printf("User '%s' is not allowed to '%s' resource '%s'", username, action, asset)
+			resource := mux.Vars(r)["resource"]
+			action := ActionFromMethod(r)
+			if !ok || !a.HasPermission(username, action, resource) {
+				log.Printf("User '%s' is denied  '%s' on resource '%s'", username, action, resource)
 				w.WriteHeader(http.StatusForbidden)
 				return
 			}
@@ -30,14 +30,14 @@ func Middleware(a Authorizer) func(http.Handler) http.Handler {
 	}
 }
 
-func actionFromMethod(httpMethod string) string {
-	switch httpMethod {
+func ActionFromMethod(r *http.Request) string {
+	switch r.Method {
 	case "GET":
-		return "gather"
-	case "POST":
-		return "consume"
+		return "can_read"
+	case "PUT":
+		return "can_write"
 	case "DELETE":
-		return "destroy"
+		return "can_delete"
 	default:
 		return ""
 	}

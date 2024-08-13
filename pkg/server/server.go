@@ -6,17 +6,20 @@ import (
 	"net/http"
 )
 
+const Port = 8000
+
 func Handler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
-	w.Write([]byte(`"Got permission"`))
+	w.Write([]byte(`"Access granted"`))
 }
 
 func Start(handler http.Handler) {
-	fmt.Println("Staring server on 0.0.0.0:8080")
+	addr := fmt.Sprintf("0.0.0.0:%d", Port)
+	fmt.Println("Staring server on", addr)
 
 	srv := http.Server{
 		Handler: handler,
-		Addr:    "0.0.0.0:8080",
+		Addr:    addr,
 	}
 	log.Fatal(srv.ListenAndServe())
 }

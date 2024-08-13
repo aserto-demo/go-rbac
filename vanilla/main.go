@@ -7,6 +7,7 @@ import (
 	"github.com/aserto-demo/go-rbac/pkg/server"
 	"github.com/aserto-demo/go-rbac/pkg/users"
 	"github.com/gorilla/mux"
+	"github.com/samber/lo"
 )
 
 type authorizer struct {
@@ -14,7 +15,7 @@ type authorizer struct {
 	roles Roles
 }
 
-func (a *authorizer) HasPermission(userID, action, asset string) bool {
+func (a *authorizer) HasPermission(userID, action, resource string) bool {
 	user, ok := a.users[userID]
 	if !ok {
 		// Unknown userID
@@ -23,17 +24,16 @@ func (a *authorizer) HasPermission(userID, action, asset string) bool {
 	}
 
 	for _, roleName := range user.Roles {
-		if role, ok := a.roles[roleName]; ok {
-			resources, ok := role[action]
-			if ok {
-				for _, resource := range resources {
-					if resource == asset {
-						return true
-					}
-				}
-			}
-		} else {
+		role := a.roles[roleName]
+		if role == nil {
 			log.Printf("User '%s' has unknown role '%s'", userID, roleName)
+			continue
+		}
+
+		if allowed, ok := role[action]; ok {
+			if lo.Contains(allowed, resource) {
+				return true
+			}
 		}
 	}
 
@@ -51,11 +51,12 @@ func main() {
 		log.Fatal("Failed to load roles:", err)
 	}
 
-	middleware := authz.Middleware(&authorizer{users: users, roles: roles})
-
 	router := mux.NewRouter()
-	router.HandleFunc("/api/{asset}", server.Handler).Methods("GET", "POST", "DELETE")
-	router.Use(middleware)
+	router.Use(
+		authz.Middleware(&authorizer{users: users, roles: roles}),
+	)
+
+	router.HandleFunc("/api/{resource}", server.Handler).Methods("GET", "PUT", "DELETE")
 
 	server.Start(router)
 }

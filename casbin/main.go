@@ -9,12 +9,13 @@ import (
 	"github.com/casbin/casbin"
 	"github.com/gorilla/mux"
 )
+
 type authorizer struct {
 	users    users.Users
 	enforcer *casbin.Enforcer
 }
 
-func (a *authorizer) HasPermission(userID, action, asset string) bool {
+func (a *authorizer) HasPermission(userID, action, resource string) bool {
 	user, ok := a.users[userID]
 	if !ok {
 		// Unknown userID
@@ -23,7 +24,7 @@ func (a *authorizer) HasPermission(userID, action, asset string) bool {
 	}
 
 	for _, role := range user.Roles {
-		if a.enforcer.Enforce(role, asset, action) {
+		if a.enforcer.Enforce(role, resource, action) {
 			return true
 		}
 	}
@@ -43,10 +44,11 @@ func main() {
 	}
 
 	router := mux.NewRouter()
-	router.HandleFunc("/api/{asset}", server.Handler).Methods("GET", "POST", "DELETE")
 	router.Use(
 		authz.Middleware(&authorizer{users: users, enforcer: enforcer}),
 	)
+
+	router.HandleFunc("/api/{resource}", server.Handler).Methods("GET", "PUT", "DELETE")
 
 	server.Start(router)
 }
